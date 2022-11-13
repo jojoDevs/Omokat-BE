@@ -11,9 +11,14 @@ const Users = sequelize.define("users", {
         type: Sequelize.STRING,
         allowNull: false,
     },
+    salt: {
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
     name: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique:true,
     },
     pic: {
         type: Sequelize.STRING,
