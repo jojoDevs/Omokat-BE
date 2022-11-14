@@ -6,15 +6,15 @@ import { verifyPassword } from "../../utils/encrypt";
 
 dotenv.config();
 
-const postLogIn = async (req: Request, res: Response) => {
+const postLogIn = (req: Request, res: Response) => {
   const password = req.body.password;
   const id = req.body.id;
   const secretKey: Secret = String(process.env.SECRET_KEY);
   const expiresIn = String(process.env.EXPIRES_IN);
   const issuer = String(process.env.ISSUER);
 
-  let pic = "";
-  let token = "";
+  let pic: string | null;
+  let token: string;
 
   User.findOne({ id: id })
     .then(async (result) => {
@@ -24,7 +24,7 @@ const postLogIn = async (req: Request, res: Response) => {
         const userPwd = String(result.password);
         const userSalt = String(result.salt);
         const name = result.name;
-        pic = String(result.pic);
+        pic = result.pic ? String(result.pic) : null;
         const isVerify = await verifyPassword(password, userPwd, userSalt);
 
         if (isVerify) {
@@ -33,13 +33,10 @@ const postLogIn = async (req: Request, res: Response) => {
             issuer: issuer,
           });
           result.token = token;
-
+          res.status(200).json({ token: token, pic: pic });
           return result.save();
-        }
+        } else res.status(421).send({ message: "비밀번호가 달라요." });
       }
-    })
-    .then(() => {
-      res.status(200).json({ token: token, pic: pic });
     })
     .catch((err) => console.log(err));
 };
