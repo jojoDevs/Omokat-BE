@@ -21,6 +21,7 @@ const postLogIn = async (req: Request, res: Response) => {
         const userPwd = result?.dataValues.password;
         const userSalt = result?.dataValues.salt;
         const name = result?.dataValues.name;
+        const pic = result?.dataValues.pic;
         const isVerify = await verifyPassword(password, userPwd, userSalt);
 
         if (isVerify) {
@@ -28,7 +29,11 @@ const postLogIn = async (req: Request, res: Response) => {
             expiresIn: expiresIn,
             issuer: issuer,
           });
-          res.status(200).json({ token: token });
+          Users.update({ token: token }, { where: { id: id } })
+            .then(() => {
+              res.status(200).json({ token: token, pic: pic });
+            })
+            .catch((err) => console.log(err));
         } else {
           res.status(421).send({ message: "비밀번호가 달라요." });
         }
