@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Users from "../../models/users";
+import User from "../../models/user";
 import { createHashedPassword } from "../../utils/encrypt";
 
 const checkPwdValidation = (pwd: string) => {
@@ -15,13 +15,15 @@ const putResetPwd = async (req: Request, res: Response) => {
   if (checkPwdValidation(password)) {
     const { hashedPassword, salt } = await createHashedPassword(password);
 
-    Users.update(
-      { password: hashedPassword, salt: salt },
-      { where: { id: id } }
-    )
-      .then(() => {
-        res.status(200).send();
+    User.findOne({ id: id })
+      .then((result) => {
+        if (result) {
+          result.password = hashedPassword;
+          result.salt = salt;
+          return result?.save();
+        }
       })
+      .then(() => res.status(200).send())
       .catch((err) => console.log(err));
   } else {
     res.status(420).send({ message: "비밀번호 형식을 한번 더 확인해주세요." });
