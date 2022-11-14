@@ -13,28 +13,28 @@ const postLogIn = async (req: Request, res: Response) => {
   const expiresIn = String(process.env.EXPIRES_IN);
   const issuer = String(process.env.ISSUER);
 
-  Users.findOne({ where: { id: id } }).then(async (result) => {
-    if (!result) {
-      res.status(412).send({ message: "가입하지 않은 아이디입니다." });
-    } else {
-      const userPwd = result?.dataValues.password;
-      const userSalt = result?.dataValues.salt;
-      const name = result?.dataValues.name;
-      const isVerify = await verifyPassword(password, userPwd, userSalt);
-
-      if (isVerify) {
-        const token = jwt.sign({ id: id, name: name }, secretKey, {
-          expiresIn: expiresIn,
-          issuer: issuer,
-        });
-        res
-          .status(200)
-          .json({ token: token, message: "로그인 성공하였습니다." });
+  Users.findOne({ where: { id: id } })
+    .then(async (result) => {
+      if (!result) {
+        res.status(412).send({ message: "가입하지 않은 아이디예요." });
       } else {
-        res.status(421).send({ message: "비밀번호가 다릅니다." });
+        const userPwd = result?.dataValues.password;
+        const userSalt = result?.dataValues.salt;
+        const name = result?.dataValues.name;
+        const isVerify = await verifyPassword(password, userPwd, userSalt);
+
+        if (isVerify) {
+          const token = jwt.sign({ id: id, name: name }, secretKey, {
+            expiresIn: expiresIn,
+            issuer: issuer,
+          });
+          res.status(200).json({ token: token });
+        } else {
+          res.status(421).send({ message: "비밀번호가 달라요." });
+        }
       }
-    }
-  });
+    })
+    .catch((err) => console.log(err));
 };
 
 export default postLogIn;
