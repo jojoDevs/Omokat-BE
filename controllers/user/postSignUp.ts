@@ -58,9 +58,9 @@ const postSignUp = async (req: Request, res: Response) => {
   }
 
   if (isIdInDB) {
-    res.status(410).send({ message: "이미 사용중인 아이디에요" });
+    res.status(410).send({ message: "이미 사용중인 아이디예요." });
   } else if (isNameInDB) {
-    res.status(430).send({ message: "이미 사용중인 닉네임에요" });
+    res.status(430).send({ message: "이미 사용중인 닉네임이에요." });
   }
 
   if (isValid && !isIdInDB && !isNameInDB) {
@@ -74,7 +74,7 @@ const postSignUp = async (req: Request, res: Response) => {
       answer: body.answer,
     })
       .then(() => {
-        res.send({ message: "회원 가입에 성공하였습니다." });
+        res.status(200).send();
       })
       .catch((err) => console.log(err));
   }
